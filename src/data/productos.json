@@ -5,8 +5,8 @@
         "marca" : "Sp5der",
         "categoria": "Sudaderas",
         "precio": "130€",
-        "descripcion": "Hoodie Sp5der confeccionada en algodón en tono marrón, boxfit, bolsillo canguro y acabados elásticos, edición YoungStonerLife.",
-        "imageKey": "brownSp5der"
+        "descripcion": "Hoodie Sp5der confeccionada en algodón en tono marrón, boxfit, bolsillo canguro y acabados elásticos, edición YoungStonerLifeÑnpx expo start.",
+        "imageKey": "brownsp5der.png"
     },
     {
         "id": "2",
@@ -15,7 +15,7 @@
         "categoria": "Sudaderas",
         "precio": "80€",
         "descripcion": "Hoodie NoLuckyLuv confeccionada en algodón, acid wash style, oversized fit, bolsillo canguro y acabados elásticos.",
-        "imageKey": "noLuckyLuvZuk" 
+        "imageKey": "noluckyluvZuk.jpg" 
     },
     {
         "id": "3",
@@ -24,7 +24,7 @@
         "categoria": "Pantalones",
         "precio": "70€",
         "descripcion": "Pantalón de chándal NoLuckyLuv confeccionado en algodón gris relaxed fit, con cintura elástica, bolsillos laterales y bajo sin ajustar.",
-        "imageKey": "noLuckyLuvQuan" 
+        "imageKey": "chandalNoLuckyLuvQuan.jpg" 
     },
     {
         "id": "4",
@@ -33,7 +33,7 @@
         "categoria": "Sudaderas",
         "precio": "150€",
         "descripcion": "Zip Luxe Vetements Hoodie con capucha y cremallera confeccionada en algodón, oversized fit, con acabado washed, bolsillo canguro.",
-        "imageKey": "navyBlueVetements" 
+        "imageKey": "vetementsbluehoodie.jpg" 
     },
     {
         "id": "5",
@@ -42,7 +42,7 @@
         "categoria": "Camisetas",
         "precio": "100€",
         "descripcion": "Camiseta Regular fit Maison Margiela confeccionada en algodón con cuello redondo y detalles de acabado distressed.",
-        "imageKey": "redMargiela"  
+        "imageKey": "margielaDistressed.jpg"  
     },
     {
         "id": "6",
@@ -51,7 +51,7 @@
         "categoria": "Zapatos/Sneakers",
         "precio": "400€",
         "descripcion": "Basic sneakers Maison Margiela confeccionadas en piel y ante con suela de goma, caracterizadas por sus costuras deshilachadas de hilo y el emblemático lema numérico en la lengüeta.",
-        "imageKey": "sneakerMargiela"   
+        "imageKey": "margielaSneakers.jpg"   
     },
     {
         "id": "7",
@@ -60,7 +60,7 @@
         "categoria": "Zapatos/Sneakers",
         "precio": "200€",
         "descripcion": "Air Jordan 1 Low OG en colaboración con Travis Scott, confeccionadas en piel con el icónico Swoosh invertido en el lateral y suela de goma.",
-        "imageKey": "mockaCactus"     
+        "imageKey": "lateralReverseMocka.jpg"     
     },
     {
         "id": "8",
@@ -69,7 +69,7 @@
         "categoria": "Camisetas",
         "precio": "90€",
         "descripcion": "Basic Tee baggy fit manga corta Cactus Jack confeccionada en algodón con cuello redondo.",
-        "imageKey": "CactusJackShirt"     
+        "imageKey": "cactusjackshirt.png"     
     },
     {
         "id": "9",
@@ -78,7 +78,7 @@
         "categoria": "Zapatos/Sneakers",
         "precio": "170€",
         "descripcion": "Air Jordan 1 High en colaboración con Travis Scott, confeccionadas en piel y ante en tonos verde militar, blanco y negro, con el característico Swoosh invertido en el lateral y suela de goma, edición limitada.",
-        "imageKey": "jordan1CactusJack"     
+        "imageKey": "jordan1CJgreen.jpg"     
     },
     {
         "id": "10",
@@ -87,7 +87,7 @@
         "categoria": "Pantalones",
         "precio": "80€",
         "descripcion": "Pantalón corto de estilo outdoor de la firma Cactus Jack confeccionado en nylon técnico verde oliva con cintura elástica y múltiples gráficos estampados de inspiración trail running.",
-        "imageKey": "jackHunchoShorts"     
+        "imageKey": "runningShortsHuncho.jpg.webp"     
     },
     {
         "id": "11",
@@ -96,7 +96,7 @@
         "categoria": "Abrigos",
         "precio": "950€",
         "descripcion": "Abrigo largo Rick Owens confeccionado en piel con cuello de solapa, arnés pectoral ajustable con hebilla metálica y bolsillos con cremallera en los antebrazos edición 'SS14 Vicious'.",
-        "imageKey": "rickOwensCoat"     
+        "imageKey": "rickOwenscoat.jpg"     
     },
     {
         "id": "12",
@@ -105,7 +105,7 @@
         "categoria": "Zapatos/Sneakers",
         "precio": "300€",
         "descripcion": "Bota de caña alta Rick Owens confeccionada en piel con puntera reforzada de goma en contraste y shark-tooth sole.",
-        "imageKey": "rickOwensBoots"     
+        "imageKey": "rickOwensbootsfront.jpg"     
     },
     {
         "id": "13",
@@ -114,7 +114,7 @@
         "categoria": "Camisas",
         "precio": "75€",
         "descripcion": "Camisa de manga corta de la firma GOLF WANG confeccionada en algodón con cuello de solapa abierto (camp collar) edición Valentine's Day.",
-        "imageKey": "golfWshirt"     
+        "imageKey": "golfWangShirt.png"     
     },
     {
         "id": "14",
@@ -123,7 +123,7 @@
         "categoria": "Pantalones",
         "precio": "120€",
         "descripcion": "Pantalón de chándal de poliéster de la firma Vivet en color negro, diseñado con corte recto, cintura elástica, un panel curvo morado en la parte superior y el logotipo de la marca bordado a juego en la pierna izquierda.",
-        "imageKey": "vivetKaiTrack"     
+        "imageKey": "trackVivet.webp"     
     },
     {
         "id": "15",
@@ -132,6 +132,6 @@
         "categoria": "Abrigos",
         "precio": "225€",
         "descripcion": "Chaqueta de cuero de la firma Vivet con acabados elásticos en puños y bajo, caracterizada por sus apliques tribales en relieve sobre el pecho, motivos de cruces en la parte frontal y un detallado de tachuelas metálicas a lo largo del cuello, hombros y mangas.",
-        "imageKey": "vivetKaiCoat"     
+        "imageKey": "vivetCoatfront.webp"     
     }
 ]

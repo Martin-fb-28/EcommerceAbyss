@@ -4,11 +4,11 @@
     "slug": "EcommerceRopa",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "ropa3",
+    "scheme": "abyss-clothing",
     "experiments": {
       "typedRoutes": true
     },
-    "icon": "./assets/icon.png",
+    "icon": "./assets/mobileIcon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
@@ -16,7 +16,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
+        "foregroundImage": "./assets/mobileIcon.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
