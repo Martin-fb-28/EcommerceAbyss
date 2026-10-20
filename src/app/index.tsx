@@ -8,6 +8,7 @@ import {
   StatusBar,
   TextInput,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 
 // 1. Importación de datos, mapa de imágenes y tarjeta
@@ -40,7 +41,12 @@ export default function Index() {
 
       {/* Cabecera de ABYSS */}
       <View style={styles.header}>
-        <Text style={styles.brandTitle}>ABYSS</Text>
+        <Image
+          source={require('../../assets/abyssLogo.png')}
+          style={styles.brandLogo}
+          resizeMode="contain"
+          accessibilityLabel="ABYSS"
+        />
         <View style={styles.cartBadge}>
           <Text style={styles.cartText}>🛒 {cart.length}</Text>
         </View>
@@ -88,12 +94,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
     backgroundColor: '#000',
     borderBottomWidth: 1,
     borderBottomColor: '#222',
   },
-  brandTitle: { fontSize: 22, fontWeight: '900', color: '#fff', letterSpacing: 3 },
+  brandLogo: {
+    width: 95,
+    height: 52,
+  },
   cartBadge: { backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 15 },
   cartText: { color: '#000', fontWeight: 'bold' },
   searchContainer: {

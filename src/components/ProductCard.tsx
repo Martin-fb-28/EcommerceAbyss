@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
-// Definimos los tipos de datos del producto para TypeScript
+
 export interface Product {
   id: string;
   nombre: string;
