@@ -17,12 +17,19 @@ interface ProductCardProps {
   product: Product;
   imageSource: any;
   onAddToCart: (product: Product) => void;
+  onPress?: (product: Product) => void;
 }
 
-export default function ProductCard({ product, imageSource, onAddToCart }: ProductCardProps) {
+export default function ProductCard({ product, imageSource, onAddToCart, onPress }: ProductCardProps) {
   return (
-    <View style={styles.card}>
-      <Image source={imageSource} style={styles.image} />
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.85}
+      onPress={() => onPress && onPress(product)}
+    >
+      <View style={styles.imageContainer}>
+        <Image source={imageSource} style={styles.image} />
+      </View>
       
       <View style={styles.infoContainer}>
         <Text style={styles.brand}>{product.marca.toUpperCase()}</Text>
@@ -38,7 +45,7 @@ export default function ProductCard({ product, imageSource, onAddToCart }: Produ
           <Text style={styles.buttonText}>Añadir</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -52,10 +59,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2a2a2a',
   },
-  image: {
+  imageContainer: {
     width: '100%',
     height: 160,
-    resizeMode: 'cover',
+    backgroundColor: '#141414',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   infoContainer: {
     padding: 10,

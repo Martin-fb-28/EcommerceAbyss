@@ -83,6 +83,7 @@ export default function Index() {
             product={item}
             imageSource={localImages[item.imageKey]}
             onAddToCart={addToCart}
+            onPress={(prod) => router.push(`/product/${prod.id}` as any)}
           />
         )}
       />
