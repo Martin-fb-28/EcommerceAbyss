@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0b" />
+<title>ABYSS · Preview UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@900&family=Inter:wght@400;500;600;700&family=Pirata+One&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0b;
+    --surface:#121214;
+    --line:#252529;
+    --line-soft:#1c1c20;
+    --text:#f4f4f2;
+    --muted:#8b8b90;
+    --muted-2:#61616a;
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{
+    background:#070708;color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:14px;line-height:1.45;
+    display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  img{display:block;max-width:100%;}
+  button{font-family:inherit;}
+
+  /* ---------- Marco del móvil ---------- */
+  .stage{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .phone{
+    width:390px;height:844px;flex:0 0 auto;background:#000;border-radius:46px;padding:10px;
+    border:1px solid #232327;box-shadow:0 40px 90px -30px rgba(0,0,0,.9);
+  }
+  .device{
+    position:relative;width:100%;height:100%;background:var(--bg);border-radius:36px;overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .caption{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#4b4b52;}
+  .statusbar{
+    height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:0 22px 0 26px;font-size:12.5px;font-weight:600;color:#fff;background:var(--bg);z-index:20;
+  }
+  .statusbar .icons{display:flex;align-items:center;gap:6px;}
+  .statusbar .bat{width:22px;height:11px;border:1px solid rgba(255,255,255,.5);border-radius:3px;position:relative;}
+  .statusbar .bat::after{content:"";position:absolute;inset:1.5px;right:5px;background:#fff;border-radius:1px;}
+  .statusbar .bat::before{content:"";position:absolute;right:-3px;top:3.5px;width:2px;height:4px;background:rgba(255,255,255,.5);border-radius:0 1px 1px 0;}
+
+  .screen-wrap{position:relative;flex:1 1 auto;overflow:hidden;}
+
+  /* ---------- Pantallas (sin transiciones) ---------- */
+  .view{
+    position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:var(--bg);
+    scrollbar-width:none;display:none;
+  }
+  .view::-webkit-scrollbar{display:none;}
+  .app[data-screen="catalog"] .view-catalog,
+  .app[data-screen="product"] .view-product,
+  .app[data-screen="cart"] .view-cart{display:block;}
+  .app[data-screen="product"] .tabbar{display:none;}
+
+  /* ---------- Iconos ---------- */
+  .ico{width:20px;height:20px;flex:0 0 auto;}
+
+  /* ---------- Catálogo ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:12;background:rgba(10,10,11,.88);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .topbar-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;}
+  .logo{height:34px;width:auto;filter:brightness(0) invert(1);}
+  .cart-btn{
+    position:relative;width:38px;height:38px;border:0;background:none;color:var(--text);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .cart-btn .ico{width:21px;height:21px;}
+  .badge{
+    position:absolute;top:0;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:9px;
+    background:#fff;color:#000;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .badge[hidden]{display:none;}
+
+  .search{
+    margin:2px 16px 12px;height:42px;border-radius:8px;background:var(--surface);
+    display:flex;align-items:center;gap:9px;padding:0 12px;
+  }
+  .search .ico{width:16px;height:16px;color:var(--muted);}
+  .search input{flex:1;background:none;border:0;outline:none;color:var(--text);font-size:13.5px;font-family:inherit;}
+  .search input::placeholder{color:var(--muted-2);}
+  .search input::-webkit-search-cancel-button{display:none;}
+  .search .clear{background:none;border:0;color:var(--muted);cursor:pointer;padding:0;display:none;}
+  .search .clear .ico{width:15px;height:15px;}
+  .search.has-value .clear{display:flex;}
+
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:0 16px 14px;scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto;border:1px solid var(--line-soft);background:none;color:var(--muted);
+    font-size:12px;font-weight:500;padding:7px 13px;border-radius:6px;cursor:pointer;
+  }
+  .chip.active{background:#fff;border-color:#fff;color:#000;font-weight:600;}
+
+  .section-head{padding:6px 16px 14px;}
+  .section-head h2{font-family:'Grenze Gotisch',serif;font-weight:900;font-size:27px;line-height:1.1;margin:0 0 2px;}
+  .section-head .meta{font-size:11.5px;color:var(--muted);}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 12px;padding:0 16px 96px;}
+  .card{display:flex;flex-direction:column;cursor:pointer;}
+  .card .media{
+    aspect-ratio:3/4;background:#f3f2f0;display:flex;align-items:center;justify-content:center;
+    border-radius:4px;overflow:hidden;
+  }
+  .card .media img{width:100%;height:100%;object-fit:contain;}
+  .card .body{padding:8px 0 0;display:flex;flex-direction:column;gap:2px;flex:1;}
+  .card .brandline{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .card .pname{
+    font-size:12.5px;line-height:1.3;font-weight:500;margin:0;min-height:33px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .card .price{font-size:13.5px;font-weight:700;letter-spacing:-.01em;margin-top:auto;padding-top:5px;}
+
+  .empty{padding:60px 20px;text-align:center;color:var(--muted-2);font-size:13px;grid-column:1/-1;}
+
+  /* ---------- Producto ---------- */
+  .back-btn{position:sticky;top:0;height:0;z-index:14;}
+  .back-btn button{
+    position:absolute;top:12px;left:14px;width:36px;height:36px;border-radius:50%;border:0;
+    background:rgba(18,18,20,.74);backdrop-filter:blur(10px);color:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .hero{aspect-ratio:1/1.12;background:#f3f2f0;display:flex;align-items:center;justify-content:center;}
+  .hero img{width:100%;height:100%;object-fit:contain;}
+
+  .pd-body{padding:18px 16px 28px;}
+  .pd-brand{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .pd-title{font-family:'Pirata One',serif;font-weight:400;font-size:22px;line-height:1.2;margin:6px 0 8px;}
+  .pd-price{font-size:21px;font-weight:700;letter-spacing:-.02em;}
+  .pd-ship{font-size:11.5px;color:var(--muted-2);margin-top:4px;}
+
+  .label{margin:20px 0 9px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .sizes{display:flex;flex-wrap:wrap;gap:8px;}
+  .size{
+    min-width:48px;height:40px;padding:0 12px;border-radius:6px;border:1px solid var(--line);
+    background:none;color:var(--text);font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .size.selected{background:#fff;border-color:#fff;color:#000;}
+
+  .pd-desc{margin:22px 0 0;padding-top:16px;border-top:1px solid var(--line-soft);}
+  .pd-desc h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 8px;}
+  .pd-desc p{margin:0;font-size:13px;line-height:1.6;color:var(--muted);}
+
+  .pd-foot{
+    position:sticky;bottom:0;z-index:13;background:rgba(10,10,11,.94);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .cta{
+    width:100%;height:50px;border-radius:6px;border:0;background:#fff;color:#000;
+    font-size:14px;font-weight:700;letter-spacing:.02em;cursor:pointer;
+  }
+  .cta:disabled{background:var(--surface);color:var(--muted-2);border:1px solid var(--line);}
+  .cta.ghost{background:none;border:1px solid var(--line);color:var(--text);}
+
+  /* ---------- Carrito (página) ---------- */
+  .view-cart{padding:0 16px 120px;}
+  .page-head{padding:6px 0 14px;}
+  .page-head h1{font-family:'Grenze Gotisch',serif;font-weight:900;font-size:27px;line-height:1.1;margin:0 0 2px;}
+  .page-head .count{font-size:11.5px;color:var(--muted);}
+
+  .citem{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line-soft);}
+  .citem .thumb{width:64px;height:80px;border-radius:4px;background:#f3f2f0;overflow:hidden;flex:0 0 auto;}
+  .citem .thumb img{width:100%;height:100%;object-fit:contain;}
+  .citem .info{flex:1;min-width:0;}
+  .citem .n{font-size:12.5px;font-weight:500;line-height:1.3;}
+  .citem .m{font-size:11px;color:var(--muted);margin-top:3px;}
+  .citem .p{font-size:13px;font-weight:700;margin-top:6px;}
+  .citem .del{width:34px;height:34px;border:0;background:none;color:var(--muted-2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .citem .del .ico{width:17px;height:17px;}
+
+  .cart-empty{padding:70px 0 30px;text-align:center;}
+  .cart-empty p{color:var(--muted);font-size:13px;margin:0 0 18px;}
+  .cart-empty .cta{width:auto;height:44px;padding:0 22px;}
+
+  .cart-foot{margin-top:18px;}
+  .sum{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:5px 0;}
+  .sum.total{
+    font-size:15px;color:var(--text);font-weight:700;
+    padding:12px 0 16px;margin-top:6px;border-top:1px solid var(--line-soft);
+  }
+
+  /* ---------- Nav inferior ---------- */
+  .tabbar{
+    position:absolute;left:0;right:0;bottom:0;z-index:20;
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-top:1px solid var(--line-soft);background:rgba(10,10,11,.96);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    padding:8px 0 calc(10px + env(safe-area-inset-bottom));
+  }
+  .tab{
+    display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;
+    color:var(--muted-2);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;cursor:pointer;
+  }
+  .tab .ico{width:20px;height:20px;}
+  .tab.active{color:#fff;}
+  .app[data-screen="catalog"] .tab-store,
+  .app[data-screen="product"] .tab-store,
+  .app[data-screen="cart"] .tab-cart{color:#fff;}
+
+  /* ---------- Aviso ---------- */
+  .toast{
+    position:absolute;left:16px;right:16px;bottom:24px;z-index:40;
+    background:#fff;color:#000;border-radius:6px;padding:11px 14px;font-size:12.5px;font-weight:600;
+    display:none;
+  }
+  .toast.show{display:block;}
+
+  /* ---------- Móvil real ---------- */
+  @media (max-width:900px){ .caption{display:none;} }
+  @media (max-width:520px){
+    body{padding:0;display:block;}
+    .stage{display:block;}
+    .phone{width:100%;height:100dvh;border-radius:0;border:0;padding:0;box-shadow:none;}
+    .device{border-radius:0;}
+    .statusbar{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="phone">
+    <div class="device app" id="app" data-screen="catalog">
+
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="icons">
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="#fff"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+          <svg width="15" height="11" viewBox="0 0 15 11" fill="#fff"><path d="M7.5 9.6 9.4 7.7a2.7 2.7 0 0 0-3.8 0L7.5 9.6ZM4.2 5.6a4.7 4.7 0 0 1 6.6 0l-1.3 1.3a3 3 0 0 0-4 0L4.2 5.6ZM1.3 2.7a8.8 8.8 0 0 1 12.4 0l-1.3 1.3a7.1 7.1 0 0 0-9.8 0L1.3 2.7Z"/></svg>
+          <span class="bat"></span>
+        </span>
+      </div>
+
+      <div class="screen-wrap">
+
+        <!-- ================= CATÁLOGO ================= -->
+        <section class="view view-catalog" id="view-catalog">
+          <div class="topbar">
+            <div class="topbar-row">
+              <img class="logo" src="../assets/abyssLogo.png" alt="ABYSS" />
+              <button class="cart-btn" type="button" aria-label="Carrito" onclick="go('cart')">
+                <!-- lucide: shopping-bag -->
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span class="badge" id="cartBadge" hidden>0</span>
+              </button>
+            </div>
+
+            <div class="search" id="searchWrap">
+              <!-- lucide: search -->
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="search" type="search" placeholder="Buscar por marca o prenda…" autocomplete="off" />
+              <button class="clear" type="button" aria-label="Limpiar" onclick="clearSearch()">
+                <!-- lucide: x -->
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+            </div>
+
+            <div class="chips" id="chips"></div>
+          </div>
+
+          <div class="section-head">
+            <h2>Colección</h2>
+            <div class="meta" id="resultCount">15 artículos</div>
+          </div>
+
+          <div class="grid" id="grid"></div>
+        </section>
+
+        <!-- ================= PRODUCTO ================= -->
+        <section class="view view-product" id="view-product">
+          <div class="back-btn">
+            <button type="button" aria-label="Volver" onclick="go('catalog')">
+              <!-- lucide: arrow-left -->
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            </button>
+          </div>
+
+          <div class="hero"><img id="pdImg" src="" alt="" /></div>
+
+          <div class="pd-body">
+            <div class="pd-brand" id="pdBrand"></div>
+            <h1 class="pd-title" id="pdTitle"></h1>
+            <div class="pd-price" id="pdPrice"></div>
+            <div class="pd-ship">Envío gratis +50€ · 30 días para devolver</div>
+
+            <div class="label">Talla</div>
+            <div class="sizes" id="sizes"></div>
+
+            <div class="pd-desc">
+              <h3>Descripción</h3>
+              <p id="pdDesc"></p>
+            </div>
+          </div>
+
+          <div class="pd-foot">
+            <button class="cta" id="addBtn" type="button" onclick="addToCart()">Selecciona una talla</button>
+          </div>
+        </section>
+
+        <!-- ================= CARRITO (PÁGINA) ================= -->
+        <section class="view view-cart" id="view-cart">
+          <div class="page-head">
+            <h1>Carrito</h1>
+            <div class="count" id="cartCount">0 artículos</div>
+          </div>
+
+          <div id="cartList"></div>
+
+          <div class="cart-foot" id="cartFoot">
+            <div class="sum"><span>Subtotal</span><span id="cartSubtotal">0,00 €</span></div>
+            <div class="sum"><span>Envío</span><span>Gratis</span></div>
+            <div class="sum total"><span>Total</span><span id="cartTotal">0,00 €</span></div>
+            <button class="cta" type="button" onclick="checkout()">Finalizar compra</button>
+          </div>
+        </section>
+
+        <div class="toast" id="toast"></div>
+      </div>
+
+      <!-- ================= NAV ================= -->
+      <nav class="tabbar">
+        <button class="tab tab-store active" type="button" onclick="goStore()">
+          <!-- lucide: shirt -->
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>
+          Tienda
+        </button>
+        <button class="tab tab-search" type="button" onclick="goStore();document.getElementById('search').focus()">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          Buscar
+        </button>
+        <button class="tab tab-cart" type="button" onclick="go('cart')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Carrito
+        </button>
+        <button class="tab tab-user" type="button" onclick="toast('Perfil · próximamente')">
+          <!-- lucide: user -->
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Perfil
+        </button>
+      </nav>
+    </div>
+  </div>
+  <div class="caption">ABYSS · preview móvil 390 × 844</div>
+</div>
+
+<script>
+/* ============================ DATOS ============================ */
+const A = '../assets/';
+const CLOTHES = ['XS','S','M','L','XL'];
+const PANTS   = ['S','M','L','XL'];
+const TEES    = ['S','M','L','XL'];
+const SHIRTS  = ['S','M','L'];
+const SHOES   = ['40','41','42','43','44','45'];
+
+const PRODUCTS = [
+  { id:'1',  nombre:"Sudadera Sp5der '55' Brown Hoodie", marca:'Sp5der', categoria:'Sudaderas', precio:130,
+    descripcion:"Hoodie Sp5der confeccionada en algodón en tono marrón, boxfit, bolsillo canguro y acabados elásticos, edición YoungStonerLife.",
+    img:A+'brownsp5der.png', sizes:CLOTHES },
+  { id:'2',  nombre:"Sudadera NoLuckyLuv 'Dead Presi' Washed Black Hoodie", marca:'NoLuckyLuv', categoria:'Sudaderas', precio:80,
+    descripcion:"Hoodie NoLuckyLuv confeccionada en algodón, acid wash style, oversized fit, bolsillo canguro y acabados elásticos.",
+    img:A+'noluckyluvZuk.jpg', sizes:CLOTHES },
+  { id:'3',  nombre:'Pantalón de Chándal NoLuckyLuv Grey Rhinestone Graphic Sweatpants', marca:'NoLuckyLuv', categoria:'Pantalones', precio:70,
+    descripcion:"Pantalón de chándal NoLuckyLuv confeccionado en algodón gris relaxed fit, con cintura elástica, bolsillos laterales y bajo sin ajustar.",
+    img:A+'chandalNoLuckyLuvQuan.jpg', sizes:PANTS },
+  { id:'4',  nombre:"Sudadera VETEMENTS 'Anarchist Front' Zip Hoodie (Navy / Black)", marca:'Vetements', categoria:'Sudaderas', precio:150,
+    descripcion:"Zip Luxe Vetements Hoodie con capucha y cremallera confeccionada en algodón, oversized fit, con acabado washed y bolsillo canguro.",
+    img:A+'vetementsbluehoodie.jpg', sizes:CLOTHES },
+  { id:'5',  nombre:'Camiseta Maison Margiela Red Embroidered Numeric Logo T-Shirt', marca:'Maison Margiela', categoria:'Camisetas', precio:100,
+    descripcion:"Camiseta regular fit Maison Margiela confeccionada en algodón con cuello redondo y detalles de acabado distressed.",
+    img:A+'margielaDistressed.jpg', sizes:TEES },
+  { id:'6',  nombre:"Zapatillas Maison Margiela Replica 'Distressed Stitching' Low-Top", marca:'Maison Margiela', categoria:'Zapatos/Sneakers', precio:400,
+    descripcion:"Basic sneakers Maison Margiela confeccionadas en piel y ante con suela de goma, con costuras deshilachadas de hilo y el emblemático lema numérico en la lengüeta.",
+    img:A+'margielaSneakers.jpg', sizes:SHOES },
+  { id:'7',  nombre:"Air Jordan 1 Retro Low OG x Travis Scott 'Reverse Mocha'", marca:'Nike x Travis Scott', categoria:'Zapatos/Sneakers', precio:200,
+    descripcion:"Air Jordan 1 Low OG en colaboración con Travis Scott, confeccionadas en piel con el icónico Swoosh invertido en el lateral y suela de goma.",
+    img:A+'lateralReverseMocka.jpg', sizes:SHOES },
+  { id:'8',  nombre:"Camiseta Travis Scott 'The Travis Scott Takeover / One Night Only In Utopia' Tee", marca:'Cactus Jack', categoria:'Camisetas', precio:90,
+    descripcion:"Basic tee baggy fit manga corta Cactus Jack confeccionada en algodón con cuello redondo.",
+    img:A+'cactusjackshirt.png', sizes:TEES },
+  { id:'9',  nombre:"Air Jordan 1 High OG x Travis Scott 'Medium Olive'", marca:'Nike x Travis Scott', categoria:'Zapatos/Sneakers', precio:170,
+    descripcion:"Air Jordan 1 High en colaboración con Travis Scott, confeccionadas en piel y ante en tonos verde militar, blanco y negro, con Swoosh invertido y suela de goma.",
+    img:A+'jordan1CJgreen.jpg', sizes:SHOES },
+  { id:'10', nombre:"Pantalón Corto Travis Scott Cactus Jack 'Running Wild' Shorts", marca:'Cactus Jack', categoria:'Pantalones', precio:80,
+    descripcion:"Pantalón corto de estilo outdoor de Cactus Jack confeccionado en nylon técnico verde oliva con cintura elástica y gráficos de inspiración trail running.",
+    img:A+'runningShortsHuncho.jpg.webp', sizes:PANTS },
+  { id:'11', nombre:'Black Leather Trench Coat Rick Owens', marca:'Rick Owens', categoria:'Abrigos', precio:950,
+    descripcion:"Abrigo largo Rick Owens confeccionado en piel con cuello de solapa, arnés pectoral ajustable y bolsillos con cremallera en los antebrazos, edición 'SS14 Vicious'.",
+    img:A+'rickOwenscoat.jpg', sizes:SHIRTS },
+  { id:'12', nombre:"Rick Owens Leather 'Elephant / Sock' Sneaker Boots", marca:'Rick Owens', categoria:'Zapatos/Sneakers', precio:300,
+    descripcion:"Bota de caña alta Rick Owens confeccionada en piel con puntera reforzada de goma en contraste y shark-tooth sole.",
+    img:A+'rickOwensbootsfront.jpg', sizes:SHOES },
+  { id:'13', nombre:"GOLF WANG 'Cupid' Button-Up", marca:'Golf Wang', categoria:'Camisas', precio:75,
+    descripcion:"Camisa de manga corta de GOLF WANG confeccionada en algodón con cuello de solapa abierto (camp collar), edición Valentine's Day.",
+    img:A+'golfWangShirt.png', sizes:TEES },
+  { id:'14', nombre:'Vivet Tracksuit', marca:'Vivet', categoria:'Pantalones', precio:120,
+    descripcion:"Pantalón de chándal de poliéster de Vivet en color negro, corte recto, cintura elástica, panel curvo morado y logotipo bordado en la pierna izquierda.",
+    img:A+'trackVivet.webp', sizes:PANTS },
+  { id:'15', nombre:'Leather Jacket Vivet Exclusive Edition', marca:'Vivet', categoria:'Abrigos', precio:225,
+    descripcion:"Chaqueta de cuero Vivet con acabados elásticos en puños y bajo, apliques tribales en relieve, cruces frontales y tachuelas metálicas en cuello, hombros y mangas.",
+    img:A+'vivetCoatfront.webp', sizes:SHIRTS }
+];
+
+const CATEGORIES = ['Todo', ...Array.from(new Set(PRODUCTS.map(p => p.categoria)))];
+
+const state = {
+  category: 'Todo',
+  query: '',
+  product: null,
+  size: null,
+  cart: []
+};
+
+const $ = id => document.getElementById(id);
+const money = n => n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+/* Icono de papelera (lucide: trash-2) para las filas del carrito */
+const TRASH = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+
+/* ============================ CATÁLOGO ============================ */
+function renderChips(){
+  $('chips').innerHTML = CATEGORIES.map(c =>
+    `<button class="chip${state.category === c ? ' active' : ''}" type="button" data-cat="${c}">${c}</button>`
+  ).join('');
+  $('chips').querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    state.category = b.dataset.cat;
+    renderChips();
+    renderGrid();
+  });
+}
+
+function filtered(){
+  const q = state.query.trim().toLowerCase();
+  return PRODUCTS.filter(p => {
+    const okCat = state.category === 'Todo' || p.categoria === state.category;
+    const okQ = !q || p.nombre.toLowerCase().includes(q)
+      || p.marca.toLowerCase().includes(q)
+      || p.categoria.toLowerCase().includes(q);
+    return okCat && okQ;
+  });
+}
+
+function renderGrid(){
+  const list = filtered();
+  $('resultCount').textContent = list.length === 1 ? '1 artículo' : list.length + ' artículos';
+  $('grid').innerHTML = list.length
+    ? list.map(p => `
+      <article class="card" data-id="${p.id}">
+        <div class="media"><img src="${p.img}" alt="${p.nombre}" loading="lazy" /></div>
+        <div class="body">
+          <span class="brandline">${p.marca}</span>
+          <p class="pname">${p.nombre}</p>
+          <span class="price">${money(p.precio)}</span>
+        </div>
+      </article>`).join('')
+    : '<div class="empty">Sin resultados.<br>Prueba con otra marca o categoría.</div>';
+
+  $('grid').querySelectorAll('.card').forEach(c => c.onclick = () => openProduct(c.dataset.id));
+}
+
+/* ============================ FICHA ============================ */
+function openProduct(id){
+  const p = PRODUCTS.find(x => x.id === id);
+  state.product = p;
+  state.size = null;
+
+  $('pdImg').src = p.img;
+  $('pdImg').alt = p.nombre;
+  $('pdBrand').textContent = p.marca;
+  $('pdTitle').textContent = p.nombre;
+  $('pdPrice').textContent = money(p.precio);
+  $('pdDesc').textContent = p.descripcion;
+
+  $('sizes').innerHTML = p.sizes.map(s =>
+    `<button class="size" type="button" data-size="${s}">${s}</button>`).join('');
+  $('sizes').querySelectorAll('.size').forEach(b => b.onclick = () => {
+    state.size = b.dataset.size;
+    $('sizes').querySelectorAll('.size').forEach(x => x.classList.toggle('selected', x === b));
+    updateAddBtn();
+  });
+
+  updateAddBtn();
+  go('product');
+}
+
+function updateAddBtn(){
+  const ok = !!state.size;
+  $('addBtn').disabled = !ok;
+  $('addBtn').textContent = ok ? 'Añadir al carrito' : 'Selecciona una talla';
+}
+
+function addToCart(){
+  if (!state.size) return;
+  const key = state.product.id + '-' + state.size;
+  const found = state.cart.find(i => i.key === key);
+  found ? found.qty++ : state.cart.push({ key, id: state.product.id, size: state.size, qty: 1 });
+  updateBadge();
+  renderCart();
+  toast('Añadido al carrito');
+}
+
+/* ============================ CARRITO ============================ */
+function updateBadge(){
+  const n = state.cart.reduce((a, i) => a + i.qty, 0);
+  $('cartBadge').textContent = n;
+  $('cartBadge').hidden = n === 0;
+}
+
+function cartTotal(){
+  return state.cart.reduce((a, i) => a + PRODUCTS.find(x => x.id === i.id).precio * i.qty, 0);
+}
+
+function renderCart(){
+  const units = state.cart.reduce((a, i) => a + i.qty, 0);
+  $('cartCount').textContent = units === 1 ? '1 artículo' : units + ' artículos';
+
+  if (!state.cart.length){
+    $('cartList').innerHTML = `
+      <div class="cart-empty">
+        <p>Tu carrito está vacío</p>
+        <button class="cta ghost" type="button" onclick="goStore()">Ver la tienda</button>
+      </div>`;
+    $('cartSubtotal').textContent = money(0);
+    $('cartTotal').textContent = money(0);
+    $('cartFoot').style.display = 'none';
+    return;
+  }
+
+  $('cartFoot').style.display = 'block';
+  $('cartList').innerHTML = state.cart.map(i => {
+    const p = PRODUCTS.find(x => x.id === i.id);
+    const qty = i.qty > 1 ? ` · ${i.qty} ud.` : '';
+    return `
+      <div class="citem">
+        <div class="thumb"><img src="${p.img}" alt="" /></div>
+        <div class="info">
+          <div class="n">${p.nombre}</div>
+          <div class="m">Talla ${i.size}${qty}</div>
+          <div class="p">${money(p.precio * i.qty)}</div>
+        </div>
+        <button class="del" type="button" aria-label="Quitar" onclick="removeItem('${i.key}')">${TRASH}</button>
+      </div>`;
+  }).join('');
+
+  const total = cartTotal();
+  $('cartSubtotal').textContent = money(total);
+  $('cartTotal').textContent = money(total);
+}
+
+function removeItem(key){
+  state.cart = state.cart.filter(i => i.key !== key);
+  renderCart();
+  updateBadge();
+}
+
+function checkout(){
+  toast('Pedido listo (demo)');
+}
+
+/* ============================ NAV / UI ============================ */
+function go(screen){
+  $('app').dataset.screen = screen;
+  $('toast').classList.remove('show');
+  clearTimeout(toastTimer);
+  const view = $('view-' + screen);
+  if (view) view.scrollTop = 0;
+}
+
+function goStore(){
+  go('catalog');
+  renderChips();
+  renderGrid();
+}
+
+function clearSearch(){
+  state.query = '';
+  $('search').value = '';
+  $('searchWrap').classList.remove('has-value');
+  renderGrid();
+}
+
+$('search').addEventListener('input', e => {
+  state.query = e.target.value;
+  $('searchWrap').classList.toggle('has-value', !!e.target.value);
+  renderGrid();
+});
+
+let toastTimer;
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1700);
+}
+
+/* init */
+renderChips();
+renderGrid();
+updateBadge();
+updateAddBtn();
+renderCart();
+if (location.hash.startsWith('#p=')) openProduct(location.hash.slice(3));
+</script>
+</body>
+</html>

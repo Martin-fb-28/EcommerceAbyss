@@ -10,22 +10,19 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import { useRouter } from 'expo-router';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-// 1. Importación de datos, mapa de imágenes y tarjeta
 import productosData from '../data/productos.json';
 import { localImages } from '../data/imageMap';
 import ProductCard from '../components/ProductCard';
+import { useCart } from '../context/CartContext';
 
-// 2. EXPORT DEFAULT OBLIGATORIO para que Expo Router lea la pantalla
 export default function Index() {
-  const [cart, setCart] = useState<any[]>([]);
+  const router = useRouter();
+  const { addToCart, totalCount } = useCart();
   const [searchText, setSearchText] = useState('');
 
-  const addToCart = (product: any) => {
-    setCart([...cart, product]);
-  };
-
-  // Buscador por nombre, descripción o marca (Requisito PDF)
   const filteredProducts = productosData.filter((product) => {
     const query = searchText.toLowerCase();
     return (
@@ -39,7 +36,6 @@ export default function Index() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Cabecera de ABYSS */}
       <View style={styles.header}>
         <Image
           source={require('../../assets/abyssLogo.png')}
@@ -47,13 +43,20 @@ export default function Index() {
           resizeMode="contain"
           accessibilityLabel="ABYSS"
         />
-        <View style={styles.cartBadge}>
-          <Text style={styles.cartText}>🛒 {cart.length}</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.cartButton}
+          onPress={() => router.push('/cart')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="cart-outline" size={20} color="#000" />
+          <View style={styles.cartBadge}>
+            <Text style={styles.cartText}>{totalCount}</Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
-      {/* Buscador */}
       <View style={styles.searchContainer}>
+        <Ionicons name="search-outline" size={18} color="#666" style={{ marginRight: 8 }} />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar por marca, prenda..."
@@ -63,14 +66,13 @@ export default function Index() {
         />
         {searchText.length > 0 && (
           <TouchableOpacity onPress={() => setSearchText('')}>
-            <Text style={styles.clearText}>✕</Text>
+            <Ionicons name="close-circle" size={18} color="#888" />
           </TouchableOpacity>
         )}
       </View>
 
       <Text style={styles.sectionTitle}>Colección Collaborations</Text>
 
-      {/* Catálogo usando ProductCard */}
       <FlatList
         data={filteredProducts}
         keyExtractor={(item) => item.id}
@@ -78,7 +80,7 @@ export default function Index() {
         contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
           <ProductCard
-            product={{ ...item, precio: parseFloat(item.precio) }}
+            product={item}
             imageSource={localImages[item.imageKey]}
             onAddToCart={addToCart}
           />
@@ -104,8 +106,25 @@ const styles = StyleSheet.create({
     width: 95,
     height: 52,
   },
-  cartBadge: { backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 15 },
-  cartText: { color: '#000', fontWeight: 'bold' },
+  cartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+  },
+  cartBadge: {
+    backgroundColor: '#000',
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+  },
+  cartText: { fontFamily: 'Montserrat_700Bold', color: '#fff', fontSize: 12 },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -117,8 +136,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
   },
-  searchInput: { flex: 1, height: 40, color: '#fff', fontSize: 13 },
-  clearText: { color: '#888', fontSize: 14, fontWeight: 'bold' },
-  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: '#fff', margin: 12 },
+  searchInput: { flex: 1, height: 40, color: '#fff', fontSize: 13, fontFamily: 'Montserrat_400Regular' },
+  clearText: { color: '#888', fontSize: 14, fontFamily: 'Montserrat_700Bold' },
+  sectionTitle: { fontSize: 15, fontFamily: 'Montserrat_700Bold', color: '#fff', margin: 12 },
   listContainer: { paddingHorizontal: 6, paddingBottom: 20 },
 });
