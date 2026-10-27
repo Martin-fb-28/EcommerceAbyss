@@ -85,11 +85,13 @@ export default function ProductDetailScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Imagen de la prenda */}
         <View style={styles.imageContainer}>
-          <Image
-            source={localImages[product.imageKey]}
-            style={styles.productImage}
-            resizeMode="contain"
-          />
+          <View style={styles.imageWrapper}>
+            <Image
+              source={localImages[product.imageKey]}
+              style={styles.productImage}
+              resizeMode="cover"
+            />
+          </View>
         </View>
 
         {/* Información del producto */}
@@ -226,6 +228,15 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#252525',
+  },
+  imageWrapper: {
+    height: '100%',
+    aspectRatio: 765 / 1024,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 8,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   productImage: {
     width: '100%',
