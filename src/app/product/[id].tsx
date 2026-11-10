@@ -8,6 +8,7 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -26,6 +27,17 @@ export default function ProductDetailScreen() {
   const [tallaSeleccionada, setTallaSeleccionada] = useState<string>('M');
   const [agregadoMensaje, setAgregadoMensaje] = useState<boolean>(false);
 
+  // Estado del carrusel de imágenes
+  const [activeProductId, setActiveProductId] = useState<string | undefined>(id);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  // Reiniciar el índice de imagen al cambiar de prenda sin causar efectos en cascada
+  if (activeProductId !== id) {
+    setActiveProductId(id);
+    setCurrentImageIndex(0);
+  }
+
   // Buscar el producto por id
   const product = productosData.find((p) => p.id === id);
 
@@ -43,6 +55,41 @@ export default function ProductDetailScreen() {
     );
   }
 
+  // Lista de imágenes disponibles de la prenda
+  const images: string[] =
+    product.images && product.images.length > 0
+      ? product.images
+      : [product.imageKey];
+
+  const hasMultipleImages = images.length > 1;
+
+  const handlePrevImage = () => {
+    if (!hasMultipleImages) return;
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    if (!hasMultipleImages) return;
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  // Soporte de deslizamiento táctil (swipe)
+  const handleTouchStart = (e: any) => {
+    setTouchStartX(e.nativeEvent.pageX);
+  };
+
+  const handleTouchEnd = (e: any) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.nativeEvent.pageX;
+    const diffX = touchEndX - touchStartX;
+    if (diffX > 45) {
+      handlePrevImage();
+    } else if (diffX < -45) {
+      handleNextImage();
+    }
+    setTouchStartX(null);
+  };
+
   const handleAddToCart = () => {
     addToCart(product);
     setAgregadoMensaje(true);
@@ -50,6 +97,9 @@ export default function ProductDetailScreen() {
       setAgregadoMensaje(false);
     }, 2000);
   };
+
+  const currentImageSource =
+    localImages[images[currentImageIndex]] || localImages[product.imageKey];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -83,15 +133,99 @@ export default function ProductDetailScreen() {
 
       {/* Contenido con scroll */}
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Imagen de la prenda */}
-        <View style={styles.imageContainer}>
-          <View style={styles.imageWrapper}>
+        {/* Carrusel / Galería de imágenes de la prenda */}
+        <View
+          style={styles.imageContainer}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Flecha Izquierda */}
+          <TouchableOpacity
+            style={[
+              styles.arrowButton,
+              styles.leftArrow,
+              !hasMultipleImages && styles.arrowDisabled,
+            ]}
+            onPress={handlePrevImage}
+            disabled={!hasMultipleImages}
+            activeOpacity={0.7}
+            accessibilityLabel="Foto anterior"
+          >
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={hasMultipleImages ? '#fff' : 'rgba(255,255,255,0.25)'}
+            />
+          </TouchableOpacity>
+
+          {/* Imagen central de la prenda */}
+          <View
+            style={[
+              styles.imageWrapper,
+              ((product as any).imageResizeMode === 'contain' || product.id === '10') &&
+                styles.imageWrapperContain,
+            ]}
+          >
             <Image
-              source={localImages[product.imageKey]}
-              style={styles.productImage}
-              resizeMode="cover"
+              source={currentImageSource}
+              style={[
+                styles.productImage,
+                ((product as any).imageResizeMode === 'contain' || product.id === '10') &&
+                  styles.imageContain,
+              ]}
+              resizeMode={
+                ((product as any).imageResizeMode === 'contain' || product.id === '10')
+                  ? 'contain'
+                  : 'cover'
+              }
             />
           </View>
+
+          {/* Flecha Derecha */}
+          <TouchableOpacity
+            style={[
+              styles.arrowButton,
+              styles.rightArrow,
+              !hasMultipleImages && styles.arrowDisabled,
+            ]}
+            onPress={handleNextImage}
+            disabled={!hasMultipleImages}
+            activeOpacity={0.7}
+            accessibilityLabel="Foto siguiente"
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={24}
+              color={hasMultipleImages ? '#fff' : 'rgba(255,255,255,0.25)'}
+            />
+          </TouchableOpacity>
+
+          {/* Indicador de fotos (1 / 2) */}
+          {hasMultipleImages && (
+            <View style={styles.badgeIndicator}>
+              <Ionicons name="images-outline" size={12} color="#fff" style={{ marginRight: 4 }} />
+              <Text style={styles.badgeText}>
+                {currentImageIndex + 1} / {images.length}
+              </Text>
+            </View>
+          )}
+
+          {/* Puntos de paginación (dots) */}
+          {hasMultipleImages && (
+            <View style={styles.dotsContainer}>
+              {images.map((_, index) => {
+                const isActive = index === currentImageIndex;
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.dot, isActive && styles.activeDot]}
+                    onPress={() => setCurrentImageIndex(index)}
+                    activeOpacity={0.8}
+                  />
+                );
+              })}
+            </View>
+          )}
         </View>
 
         {/* Información del producto */}
@@ -221,13 +355,15 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: 320,
+    height: 340,
     backgroundColor: '#161616',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#252525',
+    position: 'relative',
   },
   imageWrapper: {
     height: '100%',
@@ -237,10 +373,111 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  imageWrapperContain: {
+    backgroundColor: '#ffffff',
+    padding: 12,
   },
   productImage: {
     width: '100%',
     height: '100%',
+  },
+  imageContain: {
+    width: '100%',
+    height: '100%',
+  },
+  arrowButton: {
+    position: 'absolute',
+    top: '50%',
+    marginTop: -22,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 6,
+    ...(Platform.OS === 'web'
+      ? ({
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          userSelect: 'none',
+        } as any)
+      : {}),
+  },
+  leftArrow: {
+    left: 14,
+  },
+  rightArrow: {
+    right: 14,
+  },
+  arrowDisabled: {
+    opacity: 0.22,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    ...(Platform.OS === 'web'
+      ? ({
+          cursor: 'default',
+        } as any)
+      : {}),
+  },
+  badgeIndicator: {
+    position: 'absolute',
+    top: 14,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    zIndex: 10,
+  },
+  badgeText: {
+    fontFamily: 'Montserrat_700Bold',
+    fontSize: 11,
+    color: '#fff',
+    letterSpacing: 0.5,
+  },
+  dotsContainer: {
+    position: 'absolute',
+    bottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    zIndex: 10,
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    ...(Platform.OS === 'web'
+      ? ({
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        } as any)
+      : {}),
+  },
+  activeDot: {
+    width: 20,
+    backgroundColor: '#fff',
+    borderRadius: 4,
   },
   detailsCard: {
     padding: 20,

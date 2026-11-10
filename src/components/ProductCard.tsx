@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Pressable, Platform } from 'react-native';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,6 +11,8 @@ export interface Product {
   precio: number;
   descripcion: string;
   imageKey: string;
+  images?: string[];
+  imageResizeMode?: string;
 }
 
 interface ProductCardProps {
@@ -22,38 +24,91 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, imageSource, onAddToCart, onPress }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+  const pressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pressTimeoutRef.current) clearTimeout(pressTimeoutRef.current);
+      if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
+    };
+  }, []);
+
+  const handlePressIn = () => {
+    setIsPressed(true);
+  };
+
+  const handlePressOut = () => {
+    // Mantener el resplandor rojo un momento en móvil para que el usuario aprecie el efecto
+    pressTimeoutRef.current = setTimeout(() => {
+      setIsPressed(false);
+    }, 160);
+  };
+
+  const handlePress = () => {
+    if (onPress) {
+      // En dispositivos táctiles damos un breve instante para apreciar el fondo rojo antes de navegar
+      if (Platform.OS !== 'web') {
+        navTimeoutRef.current = setTimeout(() => {
+          onPress(product);
+        }, 110);
+      } else {
+        onPress(product);
+      }
+    }
+  };
+
+  const isContain = product.imageResizeMode === 'contain' || product.id === '10';
 
   return (
     <Pressable
-      style={({ pressed }) => [
-        styles.card,
-        isHovered && styles.cardHovered,
-        pressed && styles.cardPressed,
-      ]}
-      onPress={() => onPress && onPress(product)}
+      style={({ pressed }) => {
+        const isHighlighted = isHovered || isPressed || pressed;
+        return [
+          styles.card,
+          isHighlighted && styles.cardHovered,
+          (isPressed || pressed) && styles.cardPressed,
+        ];
+      }}
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       onHoverIn={() => setIsHovered(true)}
       onHoverOut={() => setIsHovered(false)}
+      android_ripple={{ color: 'rgba(235, 45, 45, 0.22)', borderless: false }}
     >
-      <View style={[styles.imageContainer, isHovered && styles.imageContainerHovered]}>
-        <View style={styles.imageWrapper}>
-          <Image source={imageSource} style={styles.image} resizeMode="cover" />
-        </View>
-      </View>
-      
-      <View style={styles.infoContainer}>
-        <Text style={styles.brand}>{product.marca.toUpperCase()}</Text>
-        <Text style={styles.name} numberOfLines={1}>{product.nombre}</Text>
-        <Text style={styles.price}>{product.precio.toFixed(2)} €</Text>
+      {({ pressed }) => {
+        const isHighlighted = isHovered || isPressed || pressed;
+        return (
+          <>
+            <View style={[styles.imageContainer, isHighlighted && styles.imageContainerHovered]}>
+              <View style={[styles.imageWrapper, isContain && styles.imageWrapperContain]}>
+                <Image
+                  source={imageSource}
+                  style={[styles.image, isContain && styles.imageContain]}
+                  resizeMode={isContain ? 'contain' : 'cover'}
+                />
+              </View>
+            </View>
+            
+            <View style={styles.infoContainer}>
+              <Text style={styles.brand}>{product.marca.toUpperCase()}</Text>
+              <Text style={styles.name} numberOfLines={1}>{product.nombre}</Text>
+              <Text style={styles.price}>{product.precio.toFixed(2)} €</Text>
 
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => onAddToCart(product)}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="cart-outline" size={15} color="#000" style={styles.buttonIcon} />
-          <Text style={styles.buttonText}>Añadir</Text>
-        </TouchableOpacity>
-      </View>
+              <TouchableOpacity 
+                style={styles.button} 
+                onPress={() => onAddToCart(product)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="cart-outline" size={15} color="#000" style={styles.buttonIcon} />
+                <Text style={styles.buttonText}>Añadir</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        );
+      }}
     </Pressable>
   );
 }
@@ -61,6 +116,7 @@ export default function ProductCard({ product, imageSource, onAddToCart, onPress
 const styles = StyleSheet.create({
   card: {
     flex: 1,
+    maxWidth: '50%',
     backgroundColor: '#1a1a1a',
     margin: 6,
     borderRadius: 8,
@@ -71,6 +127,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2,
+    overflow: 'hidden',
     ...(Platform.OS === 'web'
       ? ({
           transition: 'transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background-color 0.22s ease',
@@ -79,23 +136,26 @@ const styles = StyleSheet.create({
       : {}),
   },
   cardHovered: {
-    transform: [{ translateY: -5 }],
-    borderColor: 'rgba(235, 45, 45, 0.55)',
-    backgroundColor: '#1e1414',
+    transform: [{ translateY: -4 }],
+    borderColor: 'rgba(235, 45, 45, 0.65)',
+    backgroundColor: '#221212',
     shadowColor: '#e50914',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.45,
-    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.5,
+    shadowRadius: 14,
     elevation: 8,
     ...(Platform.OS === 'web'
       ? ({
-          boxShadow: '0 10px 26px -2px rgba(220, 20, 20, 0.38), 0 0 16px rgba(220, 20, 20, 0.2)',
+          boxShadow: '0 8px 24px -2px rgba(220, 20, 20, 0.42), 0 0 16px rgba(220, 20, 20, 0.25)',
         } as any)
       : {}),
   },
   cardPressed: {
-    opacity: 0.9,
     transform: [{ translateY: -2 }],
+    backgroundColor: '#241212',
+    borderColor: 'rgba(235, 45, 45, 0.75)',
+    opacity: 0.96,
+    elevation: 8,
   },
   imageContainer: {
     width: '100%',
@@ -113,7 +173,7 @@ const styles = StyleSheet.create({
       : {}),
   },
   imageContainerHovered: {
-    backgroundColor: '#180e0e',
+    backgroundColor: '#1b0d0d',
   },
   imageWrapper: {
     height: '100%',
@@ -124,7 +184,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  imageWrapperContain: {
+    backgroundColor: '#ffffff',
+    padding: 6,
+  },
   image: {
+    width: '100%',
+    height: '100%',
+  },
+  imageContain: {
     width: '100%',
     height: '100%',
   },
