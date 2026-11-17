@@ -25,13 +25,16 @@ interface ProductCardProps {
 export default function ProductCard({ product, imageSource, onAddToCart, onPress }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
   const pressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
       if (pressTimeoutRef.current) clearTimeout(pressTimeoutRef.current);
       if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
+      if (addedTimeoutRef.current) clearTimeout(addedTimeoutRef.current);
     };
   }, []);
 
@@ -57,6 +60,16 @@ export default function ProductCard({ product, imageSource, onAddToCart, onPress
         onPress(product);
       }
     }
+  };
+
+  const handleAddToCartPress = (e?: any) => {
+    e?.stopPropagation?.();
+    onAddToCart(product);
+    setIsAdded(true);
+    if (addedTimeoutRef.current) clearTimeout(addedTimeoutRef.current);
+    addedTimeoutRef.current = setTimeout(() => {
+      setIsAdded(false);
+    }, 2000);
   };
 
   const isContain = product.imageResizeMode === 'contain' || product.id === '10';
@@ -98,12 +111,19 @@ export default function ProductCard({ product, imageSource, onAddToCart, onPress
               <Text style={styles.price}>{product.precio.toFixed(2)} €</Text>
 
               <TouchableOpacity 
-                style={styles.button} 
-                onPress={() => onAddToCart(product)}
+                style={[styles.button, isAdded && styles.buttonSuccess]} 
+                onPress={handleAddToCartPress}
                 activeOpacity={0.8}
               >
-                <Ionicons name="cart-outline" size={15} color="#000" style={styles.buttonIcon} />
-                <Text style={styles.buttonText}>Añadir</Text>
+                <Ionicons
+                  name={isAdded ? 'checkmark-circle' : 'cart-outline'}
+                  size={15}
+                  color={isAdded ? '#052e16' : '#000'}
+                  style={styles.buttonIcon}
+                />
+                <Text style={[styles.buttonText, isAdded && styles.buttonTextSuccess]}>
+                  {isAdded ? '¡Añadido!' : 'Añadir'}
+                </Text>
               </TouchableOpacity>
             </View>
           </>
@@ -226,6 +246,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  buttonSuccess: {
+    backgroundColor: '#4ade80',
+  },
   buttonIcon: {
     marginRight: 6,
   },
@@ -233,5 +256,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat_700Bold',
     color: '#000',
     fontSize: 11,
+  },
+  buttonTextSuccess: {
+    color: '#052e16',
   },
 });

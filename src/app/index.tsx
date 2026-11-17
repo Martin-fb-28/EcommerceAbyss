@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   Pressable,
   Platform,
   Image,
+  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -68,7 +69,41 @@ export default function Index() {
   const { addToCart, totalCount } = useCart();
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [addedMessage, setAddedMessage] = useState(false);
+  const [fadeAnim] = useState(() => new Animated.Value(0));
   const flatListRef = useRef<FlatList>(null);
+  const addedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (addedTimeoutRef.current) {
+        clearTimeout(addedTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleAddToCart = (product: Product) => {
+    addToCart(product);
+    setAddedMessage(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 180,
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
+
+    if (addedTimeoutRef.current) {
+      clearTimeout(addedTimeoutRef.current);
+    }
+    addedTimeoutRef.current = setTimeout(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: Platform.OS !== 'web',
+      }).start(() => {
+        setAddedMessage(false);
+      });
+    }, 2200);
+  };
 
   const filteredProducts = productosData.filter((product) => {
     const query = searchText.toLowerCase();
@@ -162,7 +197,7 @@ export default function Index() {
           <ProductCard
             product={item}
             imageSource={localImages[item.imageKey]}
-            onAddToCart={addToCart}
+            onAddToCart={handleAddToCart}
             onPress={(prod: Product) => router.push(`/product/${prod.id}` as any)}
           />
         )}
@@ -174,6 +209,15 @@ export default function Index() {
           </View>
         }
       />
+
+      {addedMessage && (
+        <Animated.View style={[styles.addedMessageBar, { opacity: fadeAnim }]}>
+          <Ionicons name="checkmark-circle" size={18} color="#052e16" style={{ marginRight: 8 }} />
+          <Text style={styles.addedMessageText}>
+            Producto añadido al carrito correctamente
+          </Text>
+        </Animated.View>
+      )}
 
       {filteredProducts.length > 0 && (
         <View style={styles.paginationBar}>
@@ -310,6 +354,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#0c0c0c',
     borderTopWidth: 1,
     borderTopColor: '#222',
+  },
+  addedMessageBar: {
+    backgroundColor: '#4ade80',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#22c55e',
+  },
+  addedMessageText: {
+    fontFamily: 'Montserrat_700Bold',
+    color: '#052e16',
+    fontSize: 13,
+    letterSpacing: 0.2,
   },
   arrowButton: {
     width: 36,
