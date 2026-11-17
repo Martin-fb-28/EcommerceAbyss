@@ -22,9 +22,16 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { addToCart, totalCount } = useCart();
 
-  // Tallas disponibles para la prenda
-  const tallas = ['S', 'M', 'L', 'XL'];
-  const [tallaSeleccionada, setTallaSeleccionada] = useState<string>('M');
+  // Buscar el producto por id
+  const product = productosData.find((p) => p.id === id);
+
+  // Tallas disponibles y agotadas para la prenda
+  const productTallas: string[] = (product as any)?.tallas || ['S', 'M', 'L', 'XL'];
+  const tallasAgotadas: string[] = (product as any)?.tallasAgotadas || [];
+  const primeraTallaDisponible =
+    productTallas.find((t) => !tallasAgotadas.includes(t)) || productTallas[0];
+
+  const [tallaSeleccionada, setTallaSeleccionada] = useState<string>(primeraTallaDisponible);
   const [agregadoMensaje, setAgregadoMensaje] = useState<boolean>(false);
 
   // Estado del carrusel de imágenes
@@ -32,14 +39,12 @@ export default function ProductDetailScreen() {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
-  // Reiniciar el índice de imagen al cambiar de prenda sin causar efectos en cascada
+  // Reiniciar el índice de imagen y la talla al cambiar de prenda
   if (activeProductId !== id) {
     setActiveProductId(id);
     setCurrentImageIndex(0);
+    setTallaSeleccionada(primeraTallaDisponible);
   }
-
-  // Buscar el producto por id
-  const product = productosData.find((p) => p.id === id);
 
   if (!product) {
     return (
@@ -90,7 +95,10 @@ export default function ProductDetailScreen() {
     setTouchStartX(null);
   };
 
+  const isTallaAgotada = tallasAgotadas.includes(tallaSeleccionada);
+
   const handleAddToCart = () => {
+    if (isTallaAgotada) return;
     addToCart(product);
     setAgregadoMensaje(true);
     setTimeout(() => {
@@ -243,18 +251,38 @@ export default function ProductDetailScreen() {
           {/* Selector de tallas */}
           <Text style={styles.sectionSubtitle}>Seleccionar Talla</Text>
           <View style={styles.sizesRow}>
-            {tallas.map((talla) => {
-              const isSelected = talla === tallaSeleccionada;
+            {productTallas.map((talla) => {
+              const isAgotada = tallasAgotadas.includes(talla);
+              const isSelected = talla === tallaSeleccionada && !isAgotada;
               return (
                 <TouchableOpacity
                   key={talla}
-                  style={[styles.sizeOption, isSelected && styles.sizeOptionSelected]}
-                  onPress={() => setTallaSeleccionada(talla)}
+                  style={[
+                    styles.sizeOption,
+                    isSelected && styles.sizeOptionSelected,
+                    isAgotada && styles.sizeOptionAgotada,
+                  ]}
+                  onPress={() => {
+                    if (!isAgotada) {
+                      setTallaSeleccionada(talla);
+                    }
+                  }}
+                  disabled={isAgotada}
                   activeOpacity={0.7}
+                  accessibilityLabel={isAgotada ? `Talla ${talla} agotada` : `Talla ${talla}`}
                 >
-                  <Text style={[styles.sizeText, isSelected && styles.sizeTextSelected]}>
+                  <Text
+                    style={[
+                      styles.sizeText,
+                      isSelected && styles.sizeTextSelected,
+                      isAgotada && styles.sizeTextAgotada,
+                    ]}
+                  >
                     {talla}
                   </Text>
+                  {isAgotada && (
+                    <Text style={styles.agotadoLabel}>Agotado</Text>
+                  )}
                 </TouchableOpacity>
               );
             })}
@@ -281,18 +309,38 @@ export default function ProductDetailScreen() {
       {/* Barra inferior fija para añadir a la cesta */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.addButton, agregadoMensaje && styles.addButtonSuccess]}
+          style={[
+            styles.addButton,
+            agregadoMensaje && styles.addButtonSuccess,
+            isTallaAgotada && styles.addButtonDisabled,
+          ]}
           onPress={handleAddToCart}
+          disabled={isTallaAgotada}
           activeOpacity={0.8}
         >
           <Ionicons
-            name={agregadoMensaje ? 'checkmark-circle' : 'cart'}
+            name={
+              isTallaAgotada
+                ? 'close-circle-outline'
+                : agregadoMensaje
+                ? 'checkmark-circle'
+                : 'cart'
+            }
             size={20}
-            color="#000"
+            color={isTallaAgotada ? '#777' : '#000'}
             style={{ marginRight: 8 }}
           />
-          <Text style={styles.addButtonText}>
-            {agregadoMensaje ? '¡Añadido a la cesta!' : `Añadir a la cesta (${product.precio.toFixed(2)} €)`}
+          <Text
+            style={[
+              styles.addButtonText,
+              isTallaAgotada && styles.addButtonTextDisabled,
+            ]}
+          >
+            {isTallaAgotada
+              ? `Talla ${tallaSeleccionada} agotada`
+              : agregadoMensaje
+              ? '¡Añadido a la cesta!'
+              : `Añadir a la cesta (${product.precio.toFixed(2)} €)`}
           </Text>
         </TouchableOpacity>
       </View>
@@ -535,17 +583,35 @@ const styles = StyleSheet.create({
   },
   sizeOption: {
     flex: 1,
-    height: 44,
+    height: 50,
     backgroundColor: '#1a1a1a',
     borderRadius: 6,
     borderWidth: 1,
     borderColor: '#333',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 4,
+    position: 'relative',
+    ...(Platform.OS === 'web'
+      ? ({
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        } as any)
+      : {}),
   },
   sizeOptionSelected: {
     backgroundColor: '#fff',
     borderColor: '#fff',
+  },
+  sizeOptionAgotada: {
+    backgroundColor: '#141414',
+    borderColor: '#262626',
+    opacity: 0.65,
+    ...(Platform.OS === 'web'
+      ? ({
+          cursor: 'not-allowed',
+        } as any)
+      : {}),
   },
   sizeText: {
     fontFamily: 'Montserrat_600SemiBold',
@@ -554,6 +620,20 @@ const styles = StyleSheet.create({
   },
   sizeTextSelected: {
     color: '#000',
+    fontFamily: 'Montserrat_700Bold',
+  },
+  sizeTextAgotada: {
+    color: '#666',
+    textDecorationLine: 'line-through',
+    textDecorationColor: '#ef4444',
+  },
+  agotadoLabel: {
+    fontFamily: 'Montserrat_700Bold',
+    fontSize: 8,
+    color: '#ef4444',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginTop: 1,
   },
   description: {
     fontFamily: 'Montserrat_400Regular',
@@ -597,10 +677,23 @@ const styles = StyleSheet.create({
   addButtonSuccess: {
     backgroundColor: '#4ade80',
   },
+  addButtonDisabled: {
+    backgroundColor: '#222',
+    borderWidth: 1,
+    borderColor: '#333',
+    ...(Platform.OS === 'web'
+      ? ({
+          cursor: 'not-allowed',
+        } as any)
+      : {}),
+  },
   addButtonText: {
     fontFamily: 'Montserrat_700Bold',
     color: '#000',
     fontSize: 14,
+  },
+  addButtonTextDisabled: {
+    color: '#777',
   },
   notFoundContainer: {
     flex: 1,

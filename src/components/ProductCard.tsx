@@ -13,6 +13,8 @@ export interface Product {
   imageKey: string;
   images?: string[];
   imageResizeMode?: string;
+  tallas?: string[];
+  tallasAgotadas?: string[];
 }
 
 interface ProductCardProps {

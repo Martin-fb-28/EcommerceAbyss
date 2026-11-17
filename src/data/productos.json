@@ -9,7 +9,8 @@
         "imageKey": "brownsp5der.png",
         "images": [
             "brownsp5der.png"
-        ]
+        ],
+        "tallasAgotadas": ["S", "XL"]
     },
     {
         "id": "2",
@@ -33,7 +34,8 @@
         "imageKey": "chandalNoLuckyLuvQuan.jpg",
         "images": [
             "chandalNoLuckyLuvQuan.jpg"
-        ]
+        ],
+        "tallasAgotadas": ["M"]
     },
     {
         "id": "4",
@@ -45,7 +47,8 @@
         "imageKey": "vetementsbluehoodie.jpg",
         "images": [
             "vetementsbluehoodie.jpg"
-        ]
+        ],
+        "tallasAgotadas": ["S"]
     },
     {
         "id": "5",
@@ -83,7 +86,8 @@
         "images": [
             "lateralReverseMocka.jpg",
             "reversemocka.jpg"
-        ]
+        ],
+        "tallasAgotadas": ["S", "M"]
     },
     {
         "id": "8",
@@ -95,7 +99,8 @@
         "imageKey": "cactusjackshirt.png",
         "images": [
             "cactusjackshirt.png"
-        ]
+        ],
+        "tallasAgotadas": ["L"]
     },
     {
         "id": "9",
@@ -121,7 +126,8 @@
             "runningShortsHuncho.jpg.webp",
             "runningShortsHunchov2.jpg.webp"
         ],
-        "imageResizeMode": "contain"
+        "imageResizeMode": "contain",
+        "tallasAgotadas": ["S", "XL"]
     },
     {
         "id": "11",
@@ -158,7 +164,8 @@
         "imageKey": "golfWangShirt.png",
         "images": [
             "golfWangShirt.png"
-        ]
+        ],
+        "tallasAgotadas": ["M"]
     },
     {
         "id": "14",
@@ -183,6 +190,7 @@
         "images": [
             "vivetCoatfront.webp",
             "VivetCoatBack.webp"
-        ]
+        ],
+        "tallasAgotadas": ["S"]
     }
 ]
